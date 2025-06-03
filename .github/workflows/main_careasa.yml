@@ -20,36 +20,35 @@ jobs:
         with:
           node-version: '22.x'
 
-      # Step 1: Install & build frontend
+      # Step 1: Install and build frontend
       - name: Install and build frontend
         working-directory: ./frontend
         run: |
           npm install
           npm run build
 
-      # Step 2: Copy frontend build to backend/public
+      # Step 2: Copy frontend dist to backend/public
       - name: Copy frontend dist to backend/public
         run: |
           mkdir -p backend/public
           cp -r frontend/dist/* backend/public/
 
-      # Step 3: Install backend dependencies (root level)
-      - name: Install backend dependencies
+      # Step 3: Install root-level dependencies
+      - name: Install dependencies
         run: npm install
 
-      # Step 4: Cleanup unnecessary files before zipping
-      - name: Cleanup for deployment
+      # Step 4: Cleanup (optional)
+      - name: Cleanup before zipping
         run: |
           rm -rf node_modules
           rm -rf frontend/node_modules
           rm -rf frontend/src
           rm -rf backend/seeds
 
-      # Step 5: Zip the backend folder (deployable)
+      # Step 5: Zip everything (root-level)
       - name: Zip artifact for deployment
         run: |
-          cd backend
-          zip -r ../release.zip . -x "node_modules/*" "seeds/*" "src/*" "*.log"
+          zip -r release.zip . -x "node_modules/*" "frontend/src/*" "backend/seeds/*" "*.log"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
